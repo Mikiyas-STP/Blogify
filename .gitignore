@@ -1,0 +1,18 @@
+# Dependencies and Logs
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Secret environment variables
+.env
+
+# Build output folders
+dist/
+build/
+
+# macOS system files
+.DS_Store
+
+# VS Code editor files
+.vscode/
