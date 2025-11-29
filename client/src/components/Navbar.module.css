@@ -1,0 +1,30 @@
+/* Navbar.module.css (Responsive Version) */
+.navbar {
+  background-color: #2c3e50;
+  padding: 1rem; /* Smaller padding for mobile */
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  color: white;
+}
+
+.brand {
+  font-size: 1.25rem; /* Smaller font size for mobile */
+  font-weight: bold;
+  color: white;
+  text-decoration: none;
+}
+
+.brand:hover {
+  color: #3498db;
+}
+/* Media Query for tablets and larger */
+@media (min-width: 768px) {
+  .navbar {
+    padding: 1rem 2rem; /* Restore larger padding on desktop */
+  }
+
+  .brand {
+    font-size: 1.5rem; /* Restore larger font size on desktop */
+  }
+}
