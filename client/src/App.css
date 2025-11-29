@@ -1,42 +1,129 @@
-#root {
-  max-width: 1280px;
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background-color: #f4f7f6;
+  color: #333;
+  line-height: 1.6;
+}
+
+.container {
+  max-width: 800px;
   margin: 0 auto;
   padding: 2rem;
-  text-align: center;
+  width: 100%;
 }
 
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
-}
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-}
-.logo.react:hover {
-  filter: drop-shadow(0 0 2em #61dafbaa);
+h1, h2, h3 {
+  color: #2c3e50;
 }
 
-@keyframes logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+a {
+  color: #3498db;
+  text-decoration: none;
+  transition: color 0.2s;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  a:nth-of-type(2) .logo {
-    animation: logo-spin infinite 20s linear;
-  }
+a:hover {
+  color: #2980b9;
 }
 
-.card {
-  padding: 2em;
+hr {
+  border: none;
+  border-top: 1px solid #e0e0e0;
+  margin: 2rem 0;
 }
 
-.read-the-docs {
-  color: #888;
+.form-container {
+  background-color: #ffffff;
+  padding: 2rem;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  margin-bottom: 2rem;
+}
+
+.form-group {
+  margin-bottom: 1.5rem;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+}
+
+input[type="text"],
+textarea {
+  width: 100%;
+  padding: 0.8rem 1rem;
+  border: 1px solid #dcdcdc;
+  border-radius: 4px;
+  font-size: 1rem;
+}
+
+textarea {
+  min-height: 150px;
+  resize: vertical;
+}
+
+button {
+  background-color: #3498db;
+  color: white;
+  border: none;
+  padding: 0.8rem 1.5rem;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: 600;
+  transition: background-color 0.2s;
+}
+
+button:hover {
+  background-color: #2980b9;
+}
+
+.posts-list .post-preview {
+  background-color: #ffffff;
+  padding: 2rem;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  margin-bottom: 1.5rem;
+  transition: box-shadow 0.2s;
+}
+
+.posts-list .post-preview:hover {
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
+}
+
+.post-full .post-actions {
+  margin: 1.5rem 0;
+}
+
+.button-edit {
+  background-color: #f39c12;
+  padding: 0.8rem 1.5rem;
+  border-radius: 4px;
+  color: white;
+  font-weight: 600;
+  display: inline-block;
+  text-decoration: none;
+}
+.button-edit:hover {
+  background-color: #e67e22;
+}
+
+.button-delete {
+  background-color: #e74c3c;
+  margin-left: 1rem;
+}
+.button-delete:hover {
+  background-color: #c0392b;
+}
+
+.post-content {
+  margin-top: 2rem;
+  font-size: 1.1rem;
 }
