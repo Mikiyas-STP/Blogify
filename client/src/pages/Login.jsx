@@ -1,33 +1,28 @@
-// client/src/pages/Login.jsx
-
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-// 1. Import the 'login' function from our auth service
-import { login as loginService } from '../services/authService.js';
-import { useAuth } from '../contexts/AuthContext.jsx'; //this is a custom hook / context
+import { useAuth } from '../contexts/AuthContext'; // Import our custom hook
+
 function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState(null);
   
-  // 2. useNavigate is now correctly imported and can be used
   const navigate = useNavigate();
-  const { setToken } = useAuth(); //using the settoken function from the context
+  const { login } = useAuth(); // Get the powerful 'login' function from our context
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError(null);
     try {
-      // 3. Call the imported service function
-      const data = await loginService({ email, password });
+      // All the complexity is hidden inside the 'login' function.
+      // We just tell it what to do.
+      await login(email, password);
       
-      // We will handle the token from 'data' in our next lesson (Issue #7)
-      console.log('Login successful, token:', data.token);
-      setToken(data.token); //save it to global state
-      // 4. Redirect to the homepage on success
+      // On success, redirect to the homepage.
       navigate('/');
 
     } catch (err) {
+      // If the login function throws an error, we catch it and display it.
       setError(err.message);
     }
   };
