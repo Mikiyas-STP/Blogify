@@ -7,6 +7,10 @@ function Navbar() {
       <Link to="/" className={styles.brand}>
         Blogify
       </Link>
+      <ul className={styles.navLinks}>
+        <li><Link to="/login">Login</Link></li>
+        <li><Link to="/register">Register</Link></li>
+      </ul>
     </nav>
   );
 }

@@ -1,4 +1,6 @@
 import { Routes, Route } from 'react-router-dom';
+import Register from './pages/Register';
+import Login from './pages/Login';
 import Blog from './pages/Blog';
 import Post from './pages/Post';
 import EditPost from './pages/EditPost';
@@ -14,6 +16,8 @@ function App() {
           <Route path="/" element={<Blog />} />
           <Route path="/posts/:id" element={<Post />} />
           <Route path="/posts/:id/edit" element={<EditPost />} />
+          <Route path="/register" element={<Register />} />
+          <Route path="/login" element={<Login />} />
         </Routes>
       </main>
     </div>
