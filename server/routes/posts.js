@@ -6,7 +6,7 @@ const authMiddleware = require('../middleware/auth'); //import authentication mi
 // GET all posts
 router.get("/", async (req, res) => {
   try {
-    const sql = "SELECT * FROM posts ORDER BY created_at DESC;";
+    const sql = `SELECT posts.id, posts.title, posts.content, posts.created_at, users.username FROM posts JOIN users ON posts.author_id = users.id ORDER BY posts.created_at DESC;`;
     const result = await db.query(sql);
     res.json(result.rows);
   } catch (err) {
@@ -19,7 +19,7 @@ router.get("/", async (req, res) => {
 router.get('/:id', async (req, res) => {
   try {
     const { id } = req.params;
-    const sql = 'SELECT * FROM posts WHERE id = $1';
+    const sql = `SELECT posts.id, posts.title, posts.content, posts.created_at, users.username FROM posts JOIN users ON posts.author_id = users.id WHERE posts.id = $1;`;
     const values = [id];
     const result = await db.query(sql, values);
     if (result.rows.length === 0) {
@@ -35,9 +35,10 @@ router.get('/:id', async (req, res) => {
 // POST (create) a new post
 router.post('/', authMiddleware, async (req, res) => {
   try {
+    const authorId = req.user.id;
     const { title, content } = req.body;
-    const sql = 'INSERT INTO posts (title, content) VALUES ($1, $2) RETURNING *;';
-    const values = [title, content];
+    const sql = 'INSERT INTO posts (title, content, author_id) VALUES ($1, $2, $3) RETURNING *;';
+    const values = [title, content, authorId];
     const result = await db.query(sql, values);
     res.status(201).json(result.rows[0]);
   } catch (err) {

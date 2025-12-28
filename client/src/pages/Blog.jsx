@@ -1,3 +1,5 @@
+// client/src/pages/Blog.jsx (The Final, Correct Version)
+
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { getAllPosts, createPost } from '../services/postService';
@@ -9,28 +11,32 @@ function Blog() {
   const [newTitle, setNewTitle] = useState('');
   const [newContent, setNewContent] = useState('');
 
+  const fetchPosts = async () => {
+    try {
+      setLoading(true);
+      const data = await getAllPosts();
+      setPosts(data);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
-    const fetchPosts = async () => {
-      try {
-        const data = await getAllPosts();
-        setPosts(data);
-      } catch (err) {
-        setError(err.message);
-      } finally {
-        setLoading(false);
-      }
-    };
     fetchPosts();
   }, []);
 
   const handleCreatePost = async (e) => {
     e.preventDefault();
     try {
-      const newPost = await createPost({ title: newTitle, content: newContent });
-      setPosts([newPost, ...posts]);
+      await createPost({ title: newTitle, content: newContent });
+      await fetchPosts();
       setNewTitle('');
       setNewContent('');
-    } catch (err) { console.error(err); }
+    } catch (err) { 
+      console.error("Failed to create post:", err);
+    }
   };
 
   if (loading) return <div>Loading posts...</div>;
@@ -61,7 +67,7 @@ function Blog() {
             <Link to={`/posts/${post.id}`}>
               <h3>{post.title}</h3>
             </Link>
-            <p>Published on: {new Date(post.created_at).toLocaleDateString()}</p>
+            <p>by {post.username} on {new Date(post.created_at).toLocaleDateString()}</p>
           </div>
         ))}
       </div>
