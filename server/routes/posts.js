@@ -2,7 +2,7 @@
 const express = require("express");
 const router = express.Router();
 const db = require("../db");
-
+const authMiddleware = require('../middleware/auth'); //import authentication middleware
 // GET all posts
 router.get("/", async (req, res) => {
   try {
@@ -33,7 +33,7 @@ router.get('/:id', async (req, res) => {
 });
 
 // POST (create) a new post
-router.post('/', async (req, res) => {
+router.post('/', authMiddleware, async (req, res) => {
   try {
     const { title, content } = req.body;
     const sql = 'INSERT INTO posts (title, content) VALUES ($1, $2) RETURNING *;';
@@ -47,7 +47,7 @@ router.post('/', async (req, res) => {
 });
 
 // PUT (update) a post by ID
-router.put('/:id', async (req, res) => {
+router.put('/:id', authMiddleware, async (req, res) => {
   try {
     const { id } = req.params;
     const { title, content } = req.body;
@@ -65,7 +65,7 @@ router.put('/:id', async (req, res) => {
 });
 
 // DELETE a post by ID
-router.delete('/:id', async (req, res) => {
+router.delete('/:id', authMiddleware, async (req, res) => {
   try {
     const { id } = req.params;
     const sql = "DELETE FROM posts WHERE id = $1 RETURNING *;";
