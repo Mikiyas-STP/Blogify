@@ -134,4 +134,79 @@ router.delete('/:id', authMiddleware, async (req, res) => {
   }
 });
 
+
+// ... (at the end of the file, before module.exports)
+/**
+ * @route   GET /api/posts/:postId/comments
+ * @desc    Get all comments for a specific post
+ * @access  Public
+ */
+router.get('/:postId/comments', async (req, res) => {
+  try {
+    const { postId } = req.params;
+
+    const sql = `
+      SELECT 
+        comments.id, 
+        comments.content, 
+        comments.created_at, 
+        users.username 
+      FROM comments
+      JOIN users ON comments.author_id = users.id
+      WHERE comments.post_id = $1
+      ORDER BY comments.created_at ASC; -- Show oldest comments first
+    `;
+    const values = [postId];
+
+    const result = await db.query(sql, values);
+    res.json(result.rows);
+
+  } catch (err) {
+    console.error('Error fetching comments:', err);
+    res.status(500).json({ error: 'An error occurred while fetching comments.' });
+  }
+});
+
+/**
+ * @route   POST /api/posts/:postId/comments
+ * @desc    Create a new comment on a post
+ * @access  Private
+ */
+router.post('/:postId/comments', authMiddleware, async (req, res) => {
+  try {
+    const { postId } = req.params;
+    const authorId = req.user.id;
+    const { content, parent_comment_id } = req.body; // parent_comment_id is optional
+
+    if (!content) {
+      return res.status(400).json({ error: 'Comment content cannot be empty.' });
+    }
+
+    // Insert the comment and get the new comment's ID
+    const insertSql = `
+      INSERT INTO comments (content, author_id, post_id, parent_comment_id) 
+      VALUES ($1, $2, $3, $4) 
+      RETURNING id;
+    `;
+    const insertValues = [content, authorId, postId, parent_comment_id];
+    const insertResult = await db.query(insertSql, insertValues);
+    const newCommentId = insertResult.rows[0].id;
+
+    // Fetch the full comment with the author's username to send back to the client
+    const selectSql = `
+      SELECT comments.id, comments.content, comments.created_at, users.username 
+      FROM comments
+      JOIN users ON comments.author_id = users.id
+      WHERE comments.id = $1;
+    `;
+    const finalResult = await db.query(selectSql, [newCommentId]);
+
+    res.status(201).json(finalResult.rows[0]);
+
+  } catch (err) {
+    console.error('Error creating comment:', err);
+    res.status(500).json({ error: 'An error occurred while creating a comment.' });
+  }
+});
+
 module.exports = router;

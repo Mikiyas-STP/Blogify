@@ -3,7 +3,11 @@ require('dotenv').config(); //This loads the .env file
 const express = require("express");
 const cors = require('cors');
 const postsRouter = require("./routes/posts"); //imported my new router
-const authRouter = require('./routes/auth'); // 1. Import the new auth router
+const authRouter = require('./routes/auth'); //Import the new auth router
+
+const commentsRouter = require('./routes/comments');
+app.use('/api/comments', commentsRouter);
+
 const app = express();
 const PORT = 5001;
 //midddleware
