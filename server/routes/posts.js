@@ -44,7 +44,7 @@ router.post('/upload', authMiddleware, upload.single('image'), async (req, res) 
 // GET all posts
 router.get("/", async (req, res) => {
   try {
-    const sql = `SELECT posts.id, posts.title, posts.content, posts.created_at, users.username FROM posts JOIN users ON posts.author_id = users.id ORDER BY posts.created_at DESC;`;
+    const sql = `SELECT posts.id, posts.title, posts.content, posts.created_at, posts.cover_image_url, users.username FROM posts JOIN users ON posts.author_id = users.id ORDER BY posts.created_at DESC;`;
     const result = await db.query(sql);
     res.json(result.rows);
   } catch (err) {
@@ -74,9 +74,9 @@ router.get('/:id', async (req, res) => {
 router.post('/', authMiddleware, async (req, res) => {
   try {
     const authorId = req.user.id;
-    const { title, content } = req.body;
-    const sql = 'INSERT INTO posts (title, content, author_id) VALUES ($1, $2, $3) RETURNING *;';
-    const values = [title, content, authorId];
+    const { title, content, cover_image_url } = req.body;
+    const sql = 'INSERT INTO posts (title, content, author_id, cover_image_url) VALUES ($1, $2, $3, $4) RETURNING *;';
+    const values = [title, content, authorId, cover_image_url];
     const result = await db.query(sql, values);
     res.status(201).json(result.rows[0]);
   } catch (err) {

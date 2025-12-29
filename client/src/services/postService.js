@@ -58,3 +58,21 @@ export const deletePost = async (postId) => {
   }
   return await response.json();
 };
+
+
+//function to upload an image file
+export const uploadImage = async (imageFile) => {
+  const formData = new FormData();
+  formData.append('image', imageFile);
+  const response = await fetch(`${API_URL}/upload`, {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${localStorage.getItem('blogify_token')}`,
+    },
+    body: formData,
+  });
+  if (!response.ok) {
+    throw new Error('Failed to upload image.');
+  }
+  return await response.json(); // Returns { url: "..." }
+};

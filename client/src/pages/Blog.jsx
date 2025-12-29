@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { getAllPosts, createPost } from '../services/postService';
+import { getAllPosts, createPost, uploadImage } from '../services/postService';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 
@@ -10,6 +10,7 @@ function Blog() {
   const [error, setError] = useState(null);
   const [newTitle, setNewTitle] = useState('');
   const [newContent, setNewContent] = useState('');
+  const [imageFile, setImageFile] = useState(null);
 
   const fetchPosts = async () => {
     try {
@@ -22,18 +23,40 @@ function Blog() {
       setLoading(false);
     }
   };
-
   useEffect(() => {
     fetchPosts();
   }, []);
 
+  const handleFileChange = (e) => {
+    setImageFile(e.target.files[0]);
+  };
+
   const handleCreatePost = async (e) => {
     e.preventDefault();
+    if (!imageFile) {
+      alert('Please select a cover image.');
+      return;
+    }
+
     try {
-      await createPost({ title: newTitle, content: newContent });
+      // Step 1: Upload the image
+      const uploadResponse = await uploadImage(imageFile);
+      const coverImageUrl = uploadResponse.url;
+
+      // Step 2: Create the post with the image URL
+      await createPost({ 
+        title: newTitle, 
+        content: newContent,
+        cover_image_url: coverImageUrl,
+      });
+
+      // Step 3: Refresh the post list and clear the form
       await fetchPosts();
       setNewTitle('');
       setNewContent('');
+      setImageFile(null);
+      document.getElementById('imageUploadInput').value = null;
+
     } catch (err) { 
       console.error("Failed to create post:", err);
     }
@@ -59,22 +82,43 @@ function Blog() {
               required 
             />
           </div>
+          
+          <div className="form-group">
+            <label htmlFor="imageUploadInput">Cover Image:</label>
+            <input 
+              type="file" 
+              id="imageUploadInput"
+              onChange={handleFileChange}
+              accept="image/*"
+              required
+            />
+          </div>
+
           <div className="form-group">
             <label>Content:</label>
             <ReactQuill 
-              theme="snow" 
-              value={newContent} 
-              onChange={setNewContent} 
+              theme="snow"
+              value={newContent}
+              onChange={setNewContent}
             />
           </div>
           <button type="submit" style={{ marginTop: '1rem' }}>Create Post</button>
         </form>
       </div>
       <hr />
-      <div className="posts-list">
+            <div className="posts-list">
         <h2>All Posts</h2>
         {posts.map(post => (
           <div key={post.id} className="post-preview">
+             {post.cover_image_url && (
+        <Link to={`/posts/${post.id}`}>
+          <img 
+            src={post.cover_image_url} 
+            alt={`Cover for ${post.title}`} 
+            style={{ width: '100%', height: 'auto', borderRadius: '8px', marginBottom: '1rem' }} 
+          />
+        </Link>
+      )}
             <Link to={`/posts/${post.id}`}>
               <h3>{post.title}</h3>
             </Link>
