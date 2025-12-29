@@ -85,6 +85,7 @@ router.post('/login', async (req, res) => {
     const payload = {
       user: {
         id: user.id, // This is the information we are putting inside the token
+        username: user.username 
       },
     };
 
