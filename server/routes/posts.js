@@ -3,6 +3,44 @@ const express = require("express");
 const router = express.Router();
 const db = require("../db");
 const authMiddleware = require('../middleware/auth'); //import authentication middleware
+//imports for the image upload
+const multer = require('multer');
+const cloudinary = require('../config/cloudinary');
+
+//configure multer to store file in memory
+const storage = multer.memoryStorage();
+const upload = multer({storage: storage});
+
+// --- NEW IMAGE UPLOAD ROUTE ---
+/**
+ * @route   POST /api/posts/upload
+ * @desc    Upload an image for a post
+ * @access  Private
+ */
+router.post('/upload', authMiddleware, upload.single('image'), async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ error: 'No image file provided.' });
+    }
+    const uploadStream = cloudinary.uploader.upload_stream(
+      { folder: "blogify_posts" },
+      (error, result) => {
+        if (error) {
+          console.error('Cloudinary upload error:', error);
+          return res.status(500).json({ error: 'Failed to upload image.' });
+        }
+        //on success, Cloudinary gives us the result object
+        res.status(201).json({ url: result.secure_url });
+      }
+    );
+    // Pipe the file buffer into the upload stream
+    uploadStream.end(req.file.buffer);
+  } catch (err) {
+    console.error('Upload route error:', err);
+    res.status(500).json({ error: 'An error occurred during image upload.' });
+  }
+});
+
 // GET all posts
 router.get("/", async (req, res) => {
   try {
