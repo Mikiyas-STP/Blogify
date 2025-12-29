@@ -1,8 +1,7 @@
 // client/src/services/authService.js
 
 // The base URL for our authentication endpoints
-const API_URL = 'https://blogify-server-fjsn.onrender.com/api/auth';
-
+const API_URL = `${import.meta.env.VITE_API_BASE_URL}/api/auth`;
 // Function to handle user registration
 export const register = async (userData) => {
   const response = await fetch(`${API_URL}/register`, {

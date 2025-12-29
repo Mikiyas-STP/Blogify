@@ -1,5 +1,4 @@
-const API_URL = 'https://blogify-server-fjsn.onrender.com/api/posts';
-
+const API_URL = `${import.meta.env.VITE_API_BASE_URL}/api/posts`;
 //helper function to get auth headers : if token exist it adds authorization header
 const getAuthHeaders = () => {
   const token = localStorage.getItem('blogify_token');
