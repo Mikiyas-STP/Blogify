@@ -74,5 +74,63 @@ export const uploadImage = async (imageFile) => {
   if (!response.ok) {
     throw new Error('Failed to upload image.');
   }
-  return await response.json(); // Returns { url: "..." }
+  return await response.json(); //Returns { url: "..." }
+};
+
+
+// GET all comments for a specific post
+export const getCommentsForPost = async (postId) => {
+  const response = await fetch(`${API_URL}/${postId}/comments`);
+  if (!response.ok) {
+    throw new Error('Failed to fetch comments.');
+  }
+  return await response.json();
+};
+
+// CREATE a new comment on a post (Protected)
+export const createComment = async (postId, commentData) => {
+  const response = await fetch(`${API_URL}/${postId}/comments`, {
+    method: 'POST',
+    headers: getAuthHeaders(), // We re-use our existing helper for auth!
+    body: JSON.stringify(commentData),
+  });
+  if (!response.ok) {
+    throw new Error('Failed to create comment.');
+  }
+  return await response.json();
+};
+
+// DELETE a specific comment by its own ID (Protected)
+export const deleteComment = async (commentId) => {
+  // Note: This URL is different as it talks to our /api/comments route
+  const response = await fetch(`http://localhost:5001/api/comments/${commentId}`, {
+    method: 'DELETE',
+    headers: getAuthHeaders(),
+  });
+  if (!response.ok) {
+    throw new Error('Failed to delete comment.');
+  }
+  return await response.json();
+};
+
+//GET all reactions for a specific post
+export const getReactionsForPost = async (postId) => {
+  const response = await fetch(`${API_URL}/${postId}/reactions`);
+  if (!response.ok) {
+    throw new Error('Failed to fetch reactions.');
+  }
+  return await response.json();
+};
+
+// ADD/UPDATE/DELETE a reaction on a post (Protected)
+export const toggleReaction = async (postId, reactionType) => {
+  const response = await fetch(`${API_URL}/${postId}/react`, {
+    method: 'POST',
+    headers: getAuthHeaders(),
+    body: JSON.stringify({ reaction_type: reactionType }),
+  });
+  if (!response.ok) {
+    throw new Error('Failed to submit reaction.');
+  }
+  return await response.json();
 };

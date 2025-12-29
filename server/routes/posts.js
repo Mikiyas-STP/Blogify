@@ -1,4 +1,4 @@
-// server/routes/posts.js (The CORRECT Back-End Code)
+//Back-End Code
 const express = require("express");
 const router = express.Router();
 const db = require("../db");
@@ -6,7 +6,6 @@ const authMiddleware = require('../middleware/auth'); //import authentication mi
 //imports for the image upload
 const multer = require('multer');
 const cloudinary = require('../config/cloudinary');
-
 //configure multer to store file in memory
 const storage = multer.memoryStorage();
 const upload = multer({storage: storage});
@@ -131,6 +130,167 @@ router.delete('/:id', authMiddleware, async (req, res) => {
   } catch (err) {
     console.error("Error deleting post:", err);
     res.status(500).json({ error: "An error occurred while deleting the post." });
+  }
+});
+
+
+// ... (at the end of the file, before module.exports)
+/**
+ * @route   GET /api/posts/:postId/comments
+ * @desc    Get all comments for a specific post
+ * @access  Public
+ */
+router.get('/:postId/comments', async (req, res) => {
+  try {
+    const { postId } = req.params;
+
+    const sql = `
+      SELECT 
+        comments.id, 
+        comments.content, 
+        comments.created_at, 
+        users.username 
+      FROM comments
+      JOIN users ON comments.author_id = users.id
+      WHERE comments.post_id = $1
+      ORDER BY comments.created_at DESC; -- Show newest comments first
+    `;
+    const values = [postId];
+
+    const result = await db.query(sql, values);
+    res.json(result.rows);
+
+  } catch (err) {
+    console.error('Error fetching comments:', err);
+    res.status(500).json({ error: 'An error occurred while fetching comments.' });
+  }
+});
+
+/**
+ * @route   POST /api/posts/:postId/comments
+ * @desc    Create a new comment on a post
+ * @access  Private
+ */
+router.post('/:postId/comments', authMiddleware, async (req, res) => {
+  try {
+    const { postId } = req.params;
+    const authorId = req.user.id;
+    const { content, parent_comment_id } = req.body; // parent_comment_id is optional
+
+    if (!content) {
+      return res.status(400).json({ error: 'Comment content cannot be empty.' });
+    }
+
+    // Insert the comment and get the new comment's ID
+    const insertSql = `
+      INSERT INTO comments (content, author_id, post_id, parent_comment_id) 
+      VALUES ($1, $2, $3, $4) 
+      RETURNING id;
+    `;
+    const insertValues = [content, authorId, postId, parent_comment_id];
+    const insertResult = await db.query(insertSql, insertValues);
+    const newCommentId = insertResult.rows[0].id;
+
+    // Fetch the full comment with the author's username to send back to the client
+    const selectSql = `
+      SELECT comments.id, comments.content, comments.created_at, users.username 
+      FROM comments
+      JOIN users ON comments.author_id = users.id
+      WHERE comments.id = $1;
+    `;
+    const finalResult = await db.query(selectSql, [newCommentId]);
+
+    res.status(201).json(finalResult.rows[0]);
+
+  } catch (err) {
+    console.error('Error creating comment:', err);
+    res.status(500).json({ error: 'An error occurred while creating a comment.' });
+  }
+});
+
+
+/**
+ * @route   GET /api/posts/:postId/reactions
+ * @desc    Get all reactions for a specific post, grouped by type
+ * @access  Public
+ */
+router.get('/:postId/reactions', async (req, res) => {
+  try {
+    const { postId } = req.params;
+    //advanced SQL query
+    const sql = `
+      SELECT 
+        reaction_type, 
+        COUNT(*) as count,
+        ARRAY_AGG(users.username) as users
+      FROM reactions
+      JOIN users ON reactions.user_id = users.id
+      WHERE post_id = $1
+      GROUP BY reaction_type;
+    `;
+    const result = await db.query(sql, [postId]);
+    //The result will be an array of objects, e.g.:
+    //[ { reaction_type: 'like', count: '5', users: ['userA', 'userB', ...] } ]
+    res.json(result.rows);
+  } catch (err) {
+    console.error('Error fetching reactions:', err);
+    res.status(500).json({ error: 'An error occurred while fetching reactions.' });
+  }
+});
+
+/**
+ * @route   POST /api/posts/:postId/react
+ * @desc    Add, update, or remove a reaction on a post
+ * @access  Private
+ */
+router.post('/:postId/react', authMiddleware, async (req, res) => {
+  try {
+    const { postId } = req.params;
+    const userId = req.user.id;
+    const { reaction_type } = req.body;
+
+    // Basic validation
+    if (!reaction_type) {
+      return res.status(400).json({ error: 'Reaction type is required.' });
+    }
+
+    const existingReaction = await db.query(
+      'SELECT * FROM reactions WHERE user_id = $1 AND post_id = $2',
+      [userId, postId]
+    );
+
+    if (existingReaction.rows.length > 0) {
+      const currentReaction = existingReaction.rows[0];
+
+      if (currentReaction.reaction_type === reaction_type) {
+        //They clicked the same reaction again. We DELETE it (un-react).
+        await db.query('DELETE FROM reactions WHERE id = $1', [currentReaction.id]);
+        res.json({ message: 'Reaction removed.' });
+      } else {
+        //They clicked a different reaction. We UPDATE their existing one.
+        const result = await db.query(
+          'UPDATE reactions SET reaction_type = $1 WHERE id = $2 RETURNING *',
+          [reaction_type, currentReaction.id]
+        );
+        res.json(result.rows[0]);
+      }
+    } else {
+      //The user has no reaction yet. We INSERT a new one.
+      const result = await db.query(
+        'INSERT INTO reactions (reaction_type, user_id, post_id) VALUES ($1, $2, $3) RETURNING *',
+        [reaction_type, userId, postId]
+      );
+      res.status(201).json(result.rows[0]);
+    }
+
+  } catch (err) {
+    //this can happen if a user tries to react twice very quickly
+    //the UNIQUE constraint in our database will fire, and this catch block will handle it.
+    if (err.code === '23505') { // '23505' is the code for a unique violation
+        return res.status(409).json({ error: 'Reaction conflict. Please try again.' });
+    }
+    console.error('Error handling reaction:', err);
+    res.status(500).json({ error: 'An error occurred while handling the reaction.' });
   }
 });
 

@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { getAllPosts, createPost, uploadImage } from '../services/postService';
+import { useAuth } from '../contexts/AuthContext';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 
@@ -11,6 +12,8 @@ function Blog() {
   const [newTitle, setNewTitle] = useState('');
   const [newContent, setNewContent] = useState('');
   const [imageFile, setImageFile] = useState(null);
+
+  const { user } = useAuth();
 
   const fetchPosts = async () => {
     try {
@@ -67,9 +70,16 @@ const handleCreatePost = async (e) => {
 
   return (
     <div>
-      <h1>My Blog</h1>
+      <header style={{ textAlign: 'center', marginBottom: '3rem' }}>
+        <h1>Welcome to Blogify</h1>
+        <p style={{ fontSize: '1.2rem', color: '#6c757d' }}>
+          Your Full stack App built with React, PostgreSQL, Express & Node.js.
+        </p>
+      </header>
+
+      {user && (
       <div className="form-container">
-        <h2>Create New Post</h2>
+        <h2>Create A New Blog</h2>
         <form onSubmit={handleCreatePost}>
           <div className="form-group">
             <label htmlFor="newTitle">Title:</label>
@@ -103,7 +113,9 @@ const handleCreatePost = async (e) => {
           </div>
           <button type="submit" style={{ marginTop: '1rem' }}>Create Post</button>
         </form>
-      </div>
+      </div>  
+        
+      )}
       <hr />
             <div className="posts-list">
         <h2>All Posts</h2>
