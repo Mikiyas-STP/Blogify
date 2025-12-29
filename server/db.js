@@ -10,6 +10,25 @@ const pool = new Pool ({
   port: process.env.DB_PORT,
   ssl: process.env.DB_SSL === 'true' ? { rejectUnauthorized: false } : false ,
 });
+
+pool.on("connect", () => {
+  console.log("✅ Database connected successfully");
+});
+pool.on("error", (err) => {
+  console.error("❌ Unexpected database error:", err);
+});
+
+
+(async () => {
+  try {
+    await pool.query("SELECT NOW()");
+    console.log("✅ Database connection test passed");
+  } catch (err) {
+    console.error("❌ Database connection test failed:", err.message);
+  }
+})();
+
+
 // Render provides a single DATABASE_URL environment variable.
 // The 'pg' library automatically uses this if it exists.
 // const prodConfig = {

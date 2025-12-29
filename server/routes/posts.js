@@ -64,7 +64,14 @@ router.get("/", async (req, res) => {
     res.json(result.rows);
   } catch (err) {
     console.error("Error fetching posts:", err);
-    res.status(500).json({ error: "An error occurred while fetching posts." });
+    //res.status(500).json({ error: "An error occurred while fetching posts." });
+    const errorMessage = process.env.NODE_ENV === 'production'
+      ? "An error occurred while fetching posts."
+      : `Database error: ${err.message || err}`;
+    res.status(500).json({
+      error: errorMessage,
+      details: process.env.NODE_ENV !== 'production' ? err.message : undefined
+    });
   }
 });
 
