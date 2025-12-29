@@ -31,26 +31,35 @@ function EditPost() {
     fetchPost();
   }, [id]);
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    try {
-      let imageUrl = currentImageUrl;
-      let imagePublicId = null;
-      if (newImageFile) {
-        const uploadResponse = await uploadImage(newImageFile);
-        imageUrl = uploadResponse.url;
-        imagePublicId = uploadResponse.public_id;
-      }
-      await updatePost(id, { title, content, cover_image_url: imageUrl });
-      
-      navigate('/');
-    } catch (err) {
-      setError(err.message);
-    }
-  };
 
-  if (loading) return <div>Loading post for editing...</div>;
-  if (error) return <div>Error: {error}</div>;
+const handleSubmit = async (e) => {
+  e.preventDefault();
+  try {
+    let imageUrl = currentImageUrl;
+    let imagePublicId = null;
+
+    if (newImageFile) {
+      const uploadResponse = await uploadImage(newImageFile);
+      imageUrl = uploadResponse.url;
+      imagePublicId = uploadResponse.public_id;
+    }
+
+    await updatePost(id, { 
+      title, 
+      content, 
+      cover_image_url: imageUrl,
+      cover_image_public_id: imagePublicId 
+    });
+    
+    navigate('/');
+
+  } catch (err) {
+    setError(err.message);
+  }
+};
+
+if (loading) return <div>Loading post for editing...</div>;
+if (error) return <div>Error: {error}</div>;
 
 return (
     <div>

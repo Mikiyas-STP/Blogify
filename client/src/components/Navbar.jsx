@@ -3,7 +3,7 @@ import styles from './Navbar.module.css';
 import { useAuth } from '../contexts/AuthContext';
 
 function Navbar() {
-  const { user, logout } = useAuth(); // Get the 'user' object instead of 'token'
+  const { user, logout } = useAuth(); //Get the 'user' object instead of 'token'
 
   return (
     <nav className={styles.navbar}>

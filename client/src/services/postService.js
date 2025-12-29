@@ -74,7 +74,7 @@ export const uploadImage = async (imageFile) => {
   if (!response.ok) {
     throw new Error('Failed to upload image.');
   }
-  return await response.json(); // Returns { url: "..." }
+  return await response.json(); //Returns { url: "..." }
 };
 
 
@@ -113,7 +113,6 @@ export const deleteComment = async (commentId) => {
   return await response.json();
 };
 
-//REACTION FUNCTIONS ---
 //GET all reactions for a specific post
 export const getReactionsForPost = async (postId) => {
   const response = await fetch(`${API_URL}/${postId}/reactions`);

@@ -1,4 +1,4 @@
-// server/routes/posts.js (The CORRECT Back-End Code)
+//Back-End Code
 const express = require("express");
 const router = express.Router();
 const db = require("../db");
@@ -6,7 +6,6 @@ const authMiddleware = require('../middleware/auth'); //import authentication mi
 //imports for the image upload
 const multer = require('multer');
 const cloudinary = require('../config/cloudinary');
-
 //configure multer to store file in memory
 const storage = multer.memoryStorage();
 const upload = multer({storage: storage});
@@ -154,7 +153,7 @@ router.get('/:postId/comments', async (req, res) => {
       FROM comments
       JOIN users ON comments.author_id = users.id
       WHERE comments.post_id = $1
-      ORDER BY comments.created_at ASC; -- Show oldest comments first
+      ORDER BY comments.created_at DESC; -- Show newest comments first
     `;
     const values = [postId];
 
@@ -218,13 +217,7 @@ router.post('/:postId/comments', authMiddleware, async (req, res) => {
 router.get('/:postId/reactions', async (req, res) => {
   try {
     const { postId } = req.params;
-
-    // This advanced SQL query does all the work for us:
-    // 1. It JOINS with the users table to get usernames.
-    // 2. It filters for the specific post (WHERE post_id = $1).
-    // 3. It GROUPS all rows by the 'reaction_type'.
-    // 4. For each group, it COUNTS the number of reactions.
-    // 5. It also aggregates all the usernames in that group into a single array.
+    //advanced SQL query
     const sql = `
       SELECT 
         reaction_type, 
@@ -236,8 +229,8 @@ router.get('/:postId/reactions', async (req, res) => {
       GROUP BY reaction_type;
     `;
     const result = await db.query(sql, [postId]);
-    // The result will be an array of objects, e.g.:
-    // [ { reaction_type: 'like', count: '5', users: ['userA', 'userB', ...] } ]
+    //The result will be an array of objects, e.g.:
+    //[ { reaction_type: 'like', count: '5', users: ['userA', 'userB', ...] } ]
     res.json(result.rows);
   } catch (err) {
     console.error('Error fetching reactions:', err);
@@ -291,7 +284,7 @@ router.post('/:postId/react', authMiddleware, async (req, res) => {
     }
 
   } catch (err) {
-    //this can happen if a user tries to react twice very quickly.
+    //this can happen if a user tries to react twice very quickly
     //the UNIQUE constraint in our database will fire, and this catch block will handle it.
     if (err.code === '23505') { // '23505' is the code for a unique violation
         return res.status(409).json({ error: 'Reaction conflict. Please try again.' });
@@ -300,7 +293,5 @@ router.post('/:postId/react', authMiddleware, async (req, res) => {
     res.status(500).json({ error: 'An error occurred while handling the reaction.' });
   }
 });
-
-
 
 module.exports = router;
