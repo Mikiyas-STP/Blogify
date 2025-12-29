@@ -209,4 +209,40 @@ router.post('/:postId/comments', authMiddleware, async (req, res) => {
   }
 });
 
+
+/**
+ * @route   GET /api/posts/:postId/reactions
+ * @desc    Get all reactions for a specific post, grouped by type
+ * @access  Public
+ */
+router.get('/:postId/reactions', async (req, res) => {
+  try {
+    const { postId } = req.params;
+
+    // This advanced SQL query does all the work for us:
+    // 1. It JOINS with the users table to get usernames.
+    // 2. It filters for the specific post (WHERE post_id = $1).
+    // 3. It GROUPS all rows by the 'reaction_type'.
+    // 4. For each group, it COUNTS the number of reactions.
+    // 5. It also aggregates all the usernames in that group into a single array.
+    const sql = `
+      SELECT 
+        reaction_type, 
+        COUNT(*) as count,
+        ARRAY_AGG(users.username) as users
+      FROM reactions
+      JOIN users ON reactions.user_id = users.id
+      WHERE post_id = $1
+      GROUP BY reaction_type;
+    `;
+    const result = await db.query(sql, [postId]);
+    // The result will be an array of objects, e.g.:
+    // [ { reaction_type: 'like', count: '5', users: ['userA', 'userB', ...] } ]
+    res.json(result.rows);
+  } catch (err) {
+    console.error('Error fetching reactions:', err);
+    res.status(500).json({ error: 'An error occurred while fetching reactions.' });
+  }
+});
+
 module.exports = router;
