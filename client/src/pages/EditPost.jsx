@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { getPostById, updatePost } from '../services/postService';
+import ReactQuill from 'react-quill';
+import 'react-quill/dist/quill.snow.css';
 
 function EditPost() {
   const [title, setTitle] = useState('');
@@ -24,28 +26,43 @@ function EditPost() {
       }
     };
     fetchPost();
-  }, [id]); //Re-fetch when ID changes
+  }, [id]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
       await updatePost(id, { title, content });
-      navigate('/'); //Go to homepage to force a re-fetch of the list
+      navigate('/');
     } catch (err) {
       setError(err.message);
     }
   };
 
-  if (loading) return <div>Loading post...</div>;
+  if (loading) return <div>Loading post for editing...</div>;
   if (error) return <div>Error: {error}</div>;
 
   return (
     <div>
       <h1>Edit Post</h1>
       <form onSubmit={handleSubmit} className="form-container">
-        <div className="form-group"><label>Title:</label><input type="text" value={title} onChange={(e) => setTitle(e.target.value)} required /></div>
-        <div className="form-group"><label>Content:</label><textarea value={content} onChange={(e) => setContent(e.target.value)} required></textarea></div>
-        <button type="submit">Update Post</button>
+        <div className="form-group">
+          <label>Title:</label>
+          <input 
+            type="text" 
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            required 
+          />
+        </div>
+        <div className="form-group">
+          <label>Content:</label>
+          <ReactQuill
+            theme="snow"
+            value={content}
+            onChange={setContent}
+          />
+        </div>
+        <button type="submit" style={{ marginTop: '1rem' }}>Update Post</button>
       </form>
     </div>
   );

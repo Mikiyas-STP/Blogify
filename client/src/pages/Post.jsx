@@ -40,13 +40,12 @@ function Post() {
   return (
     <div className="post-full">
       <h1>{post.title}</h1>
-      <p><em>Published on: {new Date(post.created_at).toLocaleDateString()}</em></p>
-      <div className="post-actions">
+      <p><em>by {post.username} on {new Date(post.created_at).toLocaleDateString()}</em></p>      <div className="post-actions">
         <Link to={`/posts/${post.id}/edit`} className="button-edit">Edit Post</Link>
         <button onClick={handleDelete} className="button-delete">Delete Post</button>
       </div>
       <div className="post-content">
-        <p style={{ whiteSpace: 'pre-wrap' }}>{post.content}</p>
+        <div dangerouslySetInnerHTML={{ __html: post.content }} />
       </div>
     </div>
   );
