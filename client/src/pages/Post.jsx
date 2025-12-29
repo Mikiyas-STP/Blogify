@@ -40,7 +40,17 @@ function Post() {
   return (
     <div className="post-full">
       <h1>{post.title}</h1>
-      <p><em>by {post.username} on {new Date(post.created_at).toLocaleDateString()}</em></p>      <div className="post-actions">
+      <p><em>by {post.username} on {new Date(post.created_at).toLocaleDateString()}</em></p>
+
+      {post.cover_image_url && (
+      <img 
+        src={post.cover_image_url} 
+        alt={`Cover for ${post.title}`} 
+        style={{ width: '100%', height: 'auto', borderRadius: '8px', marginTop: '1.5rem' }} 
+      />
+    )}
+      
+      <div className="post-actions">
         <Link to={`/posts/${post.id}/edit`} className="button-edit">Edit Post</Link>
         <button onClick={handleDelete} className="button-delete">Delete Post</button>
       </div>

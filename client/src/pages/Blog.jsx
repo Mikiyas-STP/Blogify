@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { getAllPosts, createPost } from '../services/postService';
+import { getAllPosts, createPost, uploadImage } from '../services/postService';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 
@@ -10,6 +10,7 @@ function Blog() {
   const [error, setError] = useState(null);
   const [newTitle, setNewTitle] = useState('');
   const [newContent, setNewContent] = useState('');
+  const [imageFile, setImageFile] = useState(null);
 
   const fetchPosts = async () => {
     try {
@@ -22,22 +23,44 @@ function Blog() {
       setLoading(false);
     }
   };
-
   useEffect(() => {
     fetchPosts();
   }, []);
 
-  const handleCreatePost = async (e) => {
-    e.preventDefault();
-    try {
-      await createPost({ title: newTitle, content: newContent });
-      await fetchPosts();
-      setNewTitle('');
-      setNewContent('');
-    } catch (err) { 
-      console.error("Failed to create post:", err);
-    }
+  const handleFileChange = (e) => {
+    setImageFile(e.target.files[0]);
   };
+  
+
+const handleCreatePost = async (e) => {
+  e.preventDefault();
+  try {
+    let coverImageUrl = null;
+    let coverImagePublicId = null;
+    if (imageFile) {
+      const uploadResponse = await uploadImage(imageFile);
+      coverImageUrl = uploadResponse.url;
+      coverImagePublicId = uploadResponse.public_id;
+    }
+    await createPost({ 
+      title: newTitle, 
+      content: newContent,
+      cover_image_url: coverImageUrl,
+      cover_image_public_id: coverImagePublicId,
+    });
+
+    await fetchPosts();
+    setNewTitle('');
+    setNewContent('');
+    setImageFile(null);
+    if (document.getElementById('imageUploadInput')) {
+      document.getElementById('imageUploadInput').value = null;
+    }
+
+  } catch (err) { 
+    console.error("Failed to create post:", err);
+  }
+};
 
   if (loading) return <div>Loading posts...</div>;
   if (error) return <div>Error: {error}</div>;
@@ -59,22 +82,42 @@ function Blog() {
               required 
             />
           </div>
+          
+          <div className="form-group">
+            <label htmlFor="imageUploadInput">Cover Image:</label>
+            <input 
+              type="file" 
+              id="imageUploadInput"
+              onChange={handleFileChange}
+              accept="image/*"
+            />
+          </div>
+
           <div className="form-group">
             <label>Content:</label>
             <ReactQuill 
-              theme="snow" 
-              value={newContent} 
-              onChange={setNewContent} 
+              theme="snow"
+              value={newContent}
+              onChange={setNewContent}
             />
           </div>
           <button type="submit" style={{ marginTop: '1rem' }}>Create Post</button>
         </form>
       </div>
       <hr />
-      <div className="posts-list">
+            <div className="posts-list">
         <h2>All Posts</h2>
         {posts.map(post => (
           <div key={post.id} className="post-preview">
+             {post.cover_image_url && (
+        <Link to={`/posts/${post.id}`}>
+          <img 
+            src={post.cover_image_url} 
+            alt={`Cover for ${post.title}`} 
+            style={{ width: '100%', height: 'auto', borderRadius: '8px', marginBottom: '1rem' }} 
+          />
+        </Link>
+      )}
             <Link to={`/posts/${post.id}`}>
               <h3>{post.title}</h3>
             </Link>
