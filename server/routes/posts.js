@@ -76,7 +76,7 @@ router.post('/', authMiddleware, async (req, res) => {
     const authorId = req.user.id;
     const { title, content, cover_image_url } = req.body;
     const sql = 'INSERT INTO posts (title, content, author_id, cover_image_url) VALUES ($1, $2, $3, $4) RETURNING *;';
-    const values = [title, content, authorId, cover_image_url];
+    const values = [title, content, authorId, cover_image_url || null];
     const result = await db.query(sql, values);
     res.status(201).json(result.rows[0]);
   } catch (err) {

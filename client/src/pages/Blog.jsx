@@ -31,36 +31,37 @@ function Blog() {
     setImageFile(e.target.files[0]);
   };
 
-  const handleCreatePost = async (e) => {
-    e.preventDefault();
-    if (!imageFile) {
-      alert('Please select a cover image.');
-      return;
-    }
+  
+const handleCreatePost = async (e) => {
+  e.preventDefault();
+  try {
+    let coverImageUrl = null; // 1. Default to null
 
-    try {
-      // Step 1: Upload the image
+    // 2. If a file was selected, upload it first
+    if (imageFile) {
       const uploadResponse = await uploadImage(imageFile);
-      const coverImageUrl = uploadResponse.url;
-
-      // Step 2: Create the post with the image URL
-      await createPost({ 
-        title: newTitle, 
-        content: newContent,
-        cover_image_url: coverImageUrl,
-      });
-
-      // Step 3: Refresh the post list and clear the form
-      await fetchPosts();
-      setNewTitle('');
-      setNewContent('');
-      setImageFile(null);
-      document.getElementById('imageUploadInput').value = null;
-
-    } catch (err) { 
-      console.error("Failed to create post:", err);
+      coverImageUrl = uploadResponse.url;
     }
-  };
+
+    // 3. Create the post with the (potentially null) image URL
+    await createPost({ 
+      title: newTitle, 
+      content: newContent,
+      cover_image_url: coverImageUrl,
+    });
+
+    // 4. Refresh and clear the form (this logic is the same)
+    await fetchPosts();
+    setNewTitle('');
+    setNewContent('');
+    setImageFile(null);
+    document.getElementById('imageUploadInput').value = null;
+
+  } catch (err) { 
+    console.error("Failed to create post:", err);
+  }
+};
+
 
   if (loading) return <div>Loading posts...</div>;
   if (error) return <div>Error: {error}</div>;
@@ -90,7 +91,6 @@ function Blog() {
               id="imageUploadInput"
               onChange={handleFileChange}
               accept="image/*"
-              required
             />
           </div>
 
