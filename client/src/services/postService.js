@@ -49,7 +49,7 @@ export const updatePost = async (postId, postData) => {
 };
 
 export const deletePost = async (postId) => {
-  const response = await fetch(`${API_OURL}/${postId}`, {
+  const response = await fetch(`${API_URL}/${postId}`, {
     method: 'DELETE',
     headers: getAuthHeaders(), // Use our helper function
   });
