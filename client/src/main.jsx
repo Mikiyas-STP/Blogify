@@ -6,6 +6,7 @@ import App from './App.jsx';
 import './index.css';
 
 ReactDOM.createRoot(document.getElementById('root')).render(
+
   <React.StrictMode>
     <BrowserRouter>
       <AuthProvider>
@@ -13,4 +14,5 @@ ReactDOM.createRoot(document.getElementById('root')).render(
       </AuthProvider>
     </BrowserRouter>
   </React.StrictMode>
+
 );

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../contexts/AuthContext'; // Import our custom hook
+import { useAuth } from '../contexts/AuthContext';
 
 function Login() {
   const [email, setEmail] = useState('');
@@ -8,21 +8,15 @@ function Login() {
   const [error, setError] = useState(null);
   
   const navigate = useNavigate();
-  const { login } = useAuth(); // Get the powerful 'login' function from our context
+  const { login } = useAuth();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError(null);
     try {
-      // All the complexity is hidden inside the 'login' function.
-      // We just tell it what to do.
       await login(email, password);
-      
-      // On success, redirect to the homepage.
       navigate('/');
-
     } catch (err) {
-      // If the login function throws an error, we catch it and display it.
       setError(err.message);
     }
   };
@@ -32,18 +26,24 @@ function Login() {
       <h2>Login to your Account</h2>
       <form onSubmit={handleSubmit}>
         <div className="form-group">
-          <label>Email:</label>
+          <label htmlFor="loginEmail">Email:</label>
           <input 
-            type="email" 
+            type="email"
+            id="loginEmail"
+            name="email"
+            autoComplete="email" 
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required 
           />
         </div>
         <div className="form-group">
-          <label>Password:</label>
+          <label htmlFor="loginPassword">Password:</label>
           <input 
-            type="password" 
+            type="password"
+            id="loginPassword"
+            name="password"
+            autoComplete="current-password" 
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required 

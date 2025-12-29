@@ -1,10 +1,8 @@
-// client/src/pages/Register.jsx
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { register } from '../services/authService.js';
+import { register } from '../services/authService';
 
 function Register() {
-  // State for each form field
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -14,10 +12,9 @@ function Register() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError(null); // Reset error before new submission
+    setError(null);
     try {
       await register({ username, email, password });
-      // If registration is successful, redirect to the login page
       navigate('/login');
     } catch (err) {
       setError(err.message);
@@ -29,27 +26,35 @@ function Register() {
       <h2>Register for Blogify</h2>
       <form onSubmit={handleSubmit}>
         <div className="form-group">
-          <label>Username:</label>
+          <label htmlFor="username">Username:</label>
           <input 
-            type="text" 
+            type="text"
+            id="username"
+            name="username" 
             value={username}
             onChange={(e) => setUsername(e.target.value)}
             required 
           />
         </div>
         <div className="form-group">
-          <label>Email:</label>
+          <label htmlFor="email">Email:</label>
           <input 
-            type="email" 
+            type="email"
+            id="email"
+            name="email"
+            autoComplete="email" 
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required 
           />
         </div>
         <div className="form-group">
-          <label>Password:</label>
+          <label htmlFor="password">Password:</label>
           <input 
-            type="password" 
+            type="password"
+            id="password"
+            name="password"
+            autoComplete="new-password" 
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required 

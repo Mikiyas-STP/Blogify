@@ -1,8 +1,8 @@
-// client/src/pages/Blog.jsx (The Final, Correct Version)
-
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { getAllPosts, createPost } from '../services/postService';
+import ReactQuill from 'react-quill';
+import 'react-quill/dist/quill.snow.css';
 
 function Blog() {
   const [posts, setPosts] = useState([]);
@@ -49,14 +49,25 @@ function Blog() {
         <h2>Create New Post</h2>
         <form onSubmit={handleCreatePost}>
           <div className="form-group">
-            <label>Title:</label>
-            <input type="text" value={newTitle} onChange={(e) => setNewTitle(e.target.value)} required />
+            <label htmlFor="newTitle">Title:</label>
+            <input 
+              type="text"
+              id="newTitle"
+              name="newTitle"
+              value={newTitle}
+              onChange={(e) => setNewTitle(e.target.value)}
+              required 
+            />
           </div>
           <div className="form-group">
             <label>Content:</label>
-            <textarea value={newContent} onChange={(e) => setNewContent(e.target.value)} required></textarea>
+            <ReactQuill 
+              theme="snow" 
+              value={newContent} 
+              onChange={setNewContent} 
+            />
           </div>
-          <button type="submit">Create Post</button>
+          <button type="submit" style={{ marginTop: '1rem' }}>Create Post</button>
         </form>
       </div>
       <hr />
