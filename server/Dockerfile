@@ -7,7 +7,7 @@ WORKDIR /usr/src/app
 # ---- Dependencies Stage ----
 COPY package*.json ./
 # Install production dependencies
-RUN npm install --omit=dev
+RUN npm install
 # ---- Application Stage ----
 # Copy the rest of our application code
 COPY . .

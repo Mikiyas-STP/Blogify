@@ -4,7 +4,7 @@
 -- 'CASCADE' automatically removes dependent objects (like foreign key constraints).
 DROP TABLE IF EXISTS reactions;
 DROP TABLE IF EXISTS comments;
-DROP TABLE IzF EXISTS posts;
+DROP TABLE IF EXISTS posts;
 DROP TABLE IF EXISTS users;
 
 -- Create the 'users' table first, as other tables will reference it.
