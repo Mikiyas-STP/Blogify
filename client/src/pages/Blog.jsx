@@ -30,38 +30,37 @@ function Blog() {
   const handleFileChange = (e) => {
     setImageFile(e.target.files[0]);
   };
-
   
+
 const handleCreatePost = async (e) => {
   e.preventDefault();
   try {
-    let coverImageUrl = null; // 1. Default to null
-
-    // 2. If a file was selected, upload it first
+    let coverImageUrl = null;
+    let coverImagePublicId = null;
     if (imageFile) {
       const uploadResponse = await uploadImage(imageFile);
       coverImageUrl = uploadResponse.url;
+      coverImagePublicId = uploadResponse.public_id;
     }
-
-    // 3. Create the post with the (potentially null) image URL
     await createPost({ 
       title: newTitle, 
       content: newContent,
       cover_image_url: coverImageUrl,
+      cover_image_public_id: coverImagePublicId,
     });
 
-    // 4. Refresh and clear the form (this logic is the same)
     await fetchPosts();
     setNewTitle('');
     setNewContent('');
     setImageFile(null);
-    document.getElementById('imageUploadInput').value = null;
+    if (document.getElementById('imageUploadInput')) {
+      document.getElementById('imageUploadInput').value = null;
+    }
 
   } catch (err) { 
     console.error("Failed to create post:", err);
   }
 };
-
 
   if (loading) return <div>Loading posts...</div>;
   if (error) return <div>Error: {error}</div>;
