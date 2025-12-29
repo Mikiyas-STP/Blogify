@@ -6,13 +6,14 @@ const postsRouter = require("./routes/posts"); //imported my new router
 const authRouter = require('./routes/auth'); //Import the new auth router
 
 const commentsRouter = require('./routes/comments');
-app.use('/api/comments', commentsRouter);
+
 
 const app = express();
 const PORT = 5001;
 //midddleware
 app.use(cors()); //the cors middleware is used here 
 app.use(express.json()); //middleware - for my server to read json from req body
+app.use('/api/comments', commentsRouter);
 //routes
 app.use("/api/posts", postsRouter);
 app.use('/api/auth', authRouter);//Use the auth router for /api/auth
