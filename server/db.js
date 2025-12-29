@@ -1,13 +1,25 @@
-// server/db.js (Updated and Secure)
+// server/db.js (Production Ready)
 const { Pool } = require('pg');
-// The pool will now read the connection details from the environment variables
-// that were loaded by 'dotenv'.
-const pool = new Pool({
+
+// This configuration object will be used for local development
+const localConfig = {
   user: process.env.DB_USER,
   host: process.env.DB_HOST,
   database: process.env.DB_DATABASE,
   password: process.env.DB_PASSWORD,
   port: process.env.DB_PORT,
-});
+};
+
+// Render provides a single DATABASE_URL environment variable.
+// The 'pg' library automatically uses this if it exists.
+const prodConfig = {
+  connectionString: process.env.DATABASE_URL,
+  ssl: {
+    rejectUnauthorized: false,
+  },
+};
+
+// Use the production config if the DATABASE_URL is available, otherwise use local.
+const pool = new Pool(process.env.DATABASE_URL ? prodConfig : localConfig);
 
 module.exports = pool;
