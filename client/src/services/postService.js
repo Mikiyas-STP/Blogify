@@ -112,3 +112,26 @@ export const deleteComment = async (commentId) => {
   }
   return await response.json();
 };
+
+//REACTION FUNCTIONS ---
+//GET all reactions for a specific post
+export const getReactionsForPost = async (postId) => {
+  const response = await fetch(`${API_URL}/${postId}/reactions`);
+  if (!response.ok) {
+    throw new Error('Failed to fetch reactions.');
+  }
+  return await response.json();
+};
+
+// ADD/UPDATE/DELETE a reaction on a post (Protected)
+export const toggleReaction = async (postId, reactionType) => {
+  const response = await fetch(`${API_URL}/${postId}/react`, {
+    method: 'POST',
+    headers: getAuthHeaders(),
+    body: JSON.stringify({ reaction_type: reactionType }),
+  });
+  if (!response.ok) {
+    throw new Error('Failed to submit reaction.');
+  }
+  return await response.json();
+};

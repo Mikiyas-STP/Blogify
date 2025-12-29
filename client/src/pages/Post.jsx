@@ -1,13 +1,21 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import { getPostById, deletePost, getCommentsForPost, createComment, deleteComment } from '../services/postService';
+import { getPostById, deletePost, getCommentsForPost, createComment, deleteComment, getReactionsForPost, toggleReaction } from '../services/postService';
 import { useAuth } from '../contexts/AuthContext';
+
+// NEW, BETTER version:
+const REACTION_TYPES = [
+  { name: 'like', emoji: '👍' },
+  { name: 'love', emoji: '❤️' },
+  { name: 'helpful', emoji: '💡' },
+]; 
 
 function Post() {
   const [post, setPost] = useState(null);
   const [comments, setComments] = useState([]); //New state for comments
   const [newComment, setNewComment] = useState(''); //New state for the comment form
-  
+  const [reactions, setReactions] = useState([]);
+
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -15,25 +23,28 @@ function Post() {
   const navigate = useNavigate();
   const { user } = useAuth(); //Get the current logged-in user from context
 
-  // 4. Use an effect to fetch both the post and its comments
-  useEffect(() => {
-    const fetchPostAndComments = async () => {
-      try {
-        setLoading(true);
-        // Fetch them in parallel for efficiency
-        const [postData, commentsData] = await Promise.all([
-          getPostById(id),
-          getCommentsForPost(id)
-        ]);
-        setPost(postData);
-        setComments(commentsData);
-      } catch (err) {
-        setError(err.message);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchPostAndComments();
+  //reusable function to fetch all data
+  const fetchAllPostData = async () => {
+    try {
+      setLoading(true);
+      const [postData, commentsData, reactionsData] = await Promise.all([
+        getPostById(id),
+        getCommentsForPost(id),
+        getReactionsForPost(id)
+      ]);
+      setPost(postData);
+      setComments(commentsData);
+      setReactions(reactionsData);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  //Use an effect to fetch both the post and its comments
+ useEffect(() => {
+    fetchAllPostData();
   }, [id]);
 
 const handleDelete = async () => {
@@ -72,6 +83,20 @@ const handleDeleteComment = async (commentId) => {
     }
   }
 };
+const handleReactionClick = async (reactionType) => {
+    if (!user) {
+      alert('You must be logged in to react.');
+      return;
+    }
+    try {
+      // Optimistically update the UI, then re-fetch for consistency
+      await toggleReaction(id, reactionType);
+      // Re-fetch all data to get the latest counts and user lists
+      await fetchAllPostData();
+    } catch (err) {
+      console.error('Failed to react:', err);
+    }
+  };
 
   if (loading) return <div>Loading post...</div>;
   if (error) return <div>Error: {error}</div>;
@@ -98,6 +123,45 @@ const handleDeleteComment = async (commentId) => {
       <div className="post-content">
         <div dangerouslySetInnerHTML={{ __html: post.content }} />
       </div>
+
+
+ // Replace the old reactions section in Post.jsx with this:
+
+<div className="reactions-section">
+  {REACTION_TYPES.map(reactionType => {
+    // Find the data for this specific reaction from our state
+    const reactionData = reactions.find(r => r.reaction_type === reactionType.name);
+    
+    // Get the count and the list of users who reacted
+    const count = reactionData ? reactionData.count : 0;
+    const usersWhoReacted = reactionData ? reactionData.users : [];
+
+    // Check if the currently logged-in user has made this specific reaction
+    const userHasReacted = user && usersWhoReacted.includes(user.username);
+
+    return (
+      <div 
+        key={reactionType.name} 
+        className="reaction-container"
+        // The tooltip now shows a nicely formatted list of names
+        title={count > 0 ? `Reacted by:\n${usersWhoReacted.join('\n')}` : `No ${reactionType.name} reactions yet`}
+      >
+        <button 
+          onClick={() => handleReactionClick(reactionType.name)}
+          // Dynamically add the 'reacted' class if the user has made this reaction
+          className={`reaction-button ${userHasReacted ? 'reacted' : ''}`}
+        >
+          <span className="reaction-emoji">{reactionType.emoji}</span>
+          <span className="reaction-count">{count}</span>
+        </button>
+      </div>
+    );
+  })}
+</div>
+
+
+
+
 
       <hr />
 
