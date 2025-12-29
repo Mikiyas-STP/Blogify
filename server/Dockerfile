@@ -1,17 +1,20 @@
-#Use an official Node.js 18 image as a starting point
+# Backend Dockerfile
 FROM node:18-alpine
 
-# Set the working directory inside the container
-WORKDIR /usr/src/app
+WORKDIR /app
 
-# ---- Dependencies Stage ----
+# Copy package files
 COPY package*.json ./
-# Install production dependencies
-RUN npm install
-# ---- Application Stage ----
-# Copy the rest of our application code
+
+# Install dependencies
+RUN npm ci --only=production
+
+# Copy application files
 COPY . .
-# Expose the port that our app will run on
+
+# Expose port (default 5001, but can be overridden)
 EXPOSE 5001
-# The command to run when the container starts
-CMD [ "npm", "start" ]
+
+# Start the server
+CMD ["node", "index.js"]
+

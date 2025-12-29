@@ -8,10 +8,14 @@ const authRouter = require('./routes/auth');
 const commentsRouter = require('./routes/comments');
 
 const app = express();
-const PORT = 5001;
+const PORT = process.env.PORT || 5001;
 
 //midddleware
-app.use(cors()); //the cors middleware is used here 
+// CORS configuration - allow all origins in production (adjust as needed)
+app.use(cors({
+  origin: process.env.CORS_ORIGIN || '*',
+  credentials: true
+})); 
 app.use(express.json()); //middleware for my server to read json from req body
 app.use('/api/comments', commentsRouter);
 

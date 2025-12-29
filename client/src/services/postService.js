@@ -1,4 +1,5 @@
-const API_URL = `${import.meta.env.VITE_API_BASE_URL}/api/posts`;
+const API_URL = `${import.meta.env.VITE_API_URL || 'http://localhost:5001'}/api/posts`;
+
 //helper function to get auth headers : if token exist it adds authorization header
 const getAuthHeaders = () => {
   const token = localStorage.getItem('blogify_token');
@@ -102,7 +103,8 @@ export const createComment = async (postId, commentData) => {
 // DELETE a specific comment by its own ID (Protected)
 export const deleteComment = async (commentId) => {
   // Note: This URL is different as it talks to our /api/comments route
-  const response = await fetch(`http://localhost:5001/api/comments/${commentId}`, {
+  const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:5001';
+  const response = await fetch(`${baseUrl}/api/comments/${commentId}`, {
     method: 'DELETE',
     headers: getAuthHeaders(),
   });
