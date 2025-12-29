@@ -1,4 +1,4 @@
-const API_URL = 'https://blogify-server-fjsn.onrender.com';
+const API_URL = 'https://blogify-server-fjsn.onrender.com/api/posts';
 
 //helper function to get auth headers : if token exist it adds authorization header
 const getAuthHeaders = () => {

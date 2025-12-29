@@ -1,7 +1,7 @@
 // client/src/services/authService.js
 
 // The base URL for our authentication endpoints
-const API_URL = 'https://blogify-server-fjsn.onrender.com';
+const API_URL = 'https://blogify-server-fjsn.onrender.com/api/auth';
 
 // Function to handle user registration
 export const register = async (userData) => {
