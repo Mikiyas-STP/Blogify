@@ -1,4 +1,7 @@
-require('dotenv').config();
+//require('dotenv').config();
+if (process.env.NODE_ENV !== "production") {
+  require("dotenv").config({ silent: true });
+}
 //my express server
 const express = require("express");
 const cors = require('cors');
@@ -17,7 +20,13 @@ app.use(cors({
   credentials: true
 })); 
 app.use(express.json()); //middleware for my server to read json from req body
+app.get("/",(req,res)=>{res.json({
+  message: 'wonderfull!!!'
+});}
+
+);
 app.use('/api/comments', commentsRouter);
+
 
 //routes
 app.use("/api/posts", postsRouter);

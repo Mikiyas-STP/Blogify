@@ -2,7 +2,6 @@
 
 // The base URL for our authentication endpoints
 const API_URL = `${import.meta.env.VITE_API_URL || 'http://localhost:5001'}/api/auth`;
-
 // Function to handle user registration
 export const register = async (userData) => {
   const response = await fetch(`${API_URL}/register`, {
