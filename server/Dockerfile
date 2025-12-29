@@ -15,9 +15,3 @@ COPY . .
 EXPOSE 5001
 # The command to run when the container starts
 CMD [ "npm", "start" ]
-
-FROM nginx:alpine
-
-COPY dist /usr/share/nginx/html
-
-EXPOSE 80
