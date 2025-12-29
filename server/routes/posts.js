@@ -245,4 +245,62 @@ router.get('/:postId/reactions', async (req, res) => {
   }
 });
 
+/**
+ * @route   POST /api/posts/:postId/react
+ * @desc    Add, update, or remove a reaction on a post
+ * @access  Private
+ */
+router.post('/:postId/react', authMiddleware, async (req, res) => {
+  try {
+    const { postId } = req.params;
+    const userId = req.user.id;
+    const { reaction_type } = req.body;
+
+    // Basic validation
+    if (!reaction_type) {
+      return res.status(400).json({ error: 'Reaction type is required.' });
+    }
+
+    const existingReaction = await db.query(
+      'SELECT * FROM reactions WHERE user_id = $1 AND post_id = $2',
+      [userId, postId]
+    );
+
+    if (existingReaction.rows.length > 0) {
+      const currentReaction = existingReaction.rows[0];
+
+      if (currentReaction.reaction_type === reaction_type) {
+        //They clicked the same reaction again. We DELETE it (un-react).
+        await db.query('DELETE FROM reactions WHERE id = $1', [currentReaction.id]);
+        res.json({ message: 'Reaction removed.' });
+      } else {
+        //They clicked a different reaction. We UPDATE their existing one.
+        const result = await db.query(
+          'UPDATE reactions SET reaction_type = $1 WHERE id = $2 RETURNING *',
+          [reaction_type, currentReaction.id]
+        );
+        res.json(result.rows[0]);
+      }
+    } else {
+      //The user has no reaction yet. We INSERT a new one.
+      const result = await db.query(
+        'INSERT INTO reactions (reaction_type, user_id, post_id) VALUES ($1, $2, $3) RETURNING *',
+        [reaction_type, userId, postId]
+      );
+      res.status(201).json(result.rows[0]);
+    }
+
+  } catch (err) {
+    //this can happen if a user tries to react twice very quickly.
+    //the UNIQUE constraint in our database will fire, and this catch block will handle it.
+    if (err.code === '23505') { // '23505' is the code for a unique violation
+        return res.status(409).json({ error: 'Reaction conflict. Please try again.' });
+    }
+    console.error('Error handling reaction:', err);
+    res.status(500).json({ error: 'An error occurred while handling the reaction.' });
+  }
+});
+
+
+
 module.exports = router;
