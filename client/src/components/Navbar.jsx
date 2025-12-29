@@ -2,28 +2,26 @@ import { Link } from 'react-router-dom';
 import styles from './Navbar.module.css';
 import { useAuth } from '../contexts/AuthContext';
 
-
-// client/src/components/Navbar.jsx
-
-// ... imports
-
 function Navbar() {
-  const { token, logout } = useAuth(); // Get the values
+  const { user, logout } = useAuth(); // Get the 'user' object instead of 'token'
 
   return (
     <nav className={styles.navbar}>
       <Link to="/" className={styles.brand}>Blogify</Link>
       <ul className={styles.navLinks}>
-        {token ? (
+        {user ? (
           // If user IS logged in
-          <li>
-            <button onClick={logout} className={styles.logoutButton}>Logout</button>
-          </li>
-        ) : (
-          // If user IS NOT logged in (use a React Fragment <> to group them)
           <>
-            <li><Link to="/login">Login</Link></li>
-            <li><Link to="/register">Register</Link></li>
+            <li className={styles.welcomeMessage}>Welcome, {user.username}!</li>
+            <li>
+              <button onClick={logout} className={styles.navButton}>Logout</button>
+            </li>
+          </>
+        ) : (
+          // If user IS NOT logged in
+          <>
+            <li><Link to="/login" className={styles.navLink}>Login</Link></li>
+            <li><Link to="/register" className={styles.navLink}>Register</Link></li>
           </>
         )}
       </ul>
