@@ -1,4 +1,3 @@
-Change Dockefile in the client folder to this
 # Frontend Dockerfile
 FROM node:18-alpine as build
 
@@ -20,11 +19,17 @@ ENV VITE_API_URL=$VITE_API_URL
 # Build the application
 RUN npm run build
 
+# Verify build output exists
+RUN ls -la /app/dist || (echo "Build failed - dist folder not found" && exit 1)
+
 # Production stage
 FROM nginx:alpine
 
 # Copy built files from build stage
 COPY --from=build /app/dist /usr/share/nginx/html
+
+# Verify files were copied
+RUN ls -la /usr/share/nginx/html || (echo "Files not copied correctly" && exit 1)
 
 # Copy nginx configuration (for SPA routing and proper MIME types)
 RUN echo 'server { \
