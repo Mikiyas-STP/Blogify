@@ -1,16 +1,16 @@
 # Frontend Dockerfile
-FROM node:18-alpine as build
+FROM node:18-alpine AS build
 
 WORKDIR /app
 
-# Copy package files
-COPY package*.json ./
+# Copy package files (from client directory since build context is repo root)
+COPY client/package*.json ./
 
 # Install dependencies
 RUN npm ci
 
-# Copy application files
-COPY . .
+# Copy application files (from client directory)
+COPY client/ .
 
 # Build argument for API URL
 ARG VITE_API_URL=http://localhost:5001
