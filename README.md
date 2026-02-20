@@ -2,12 +2,9 @@
 
 **My First PERN Project** — a full-stack blog application built with **PostgreSQL, Express, React, and Node.js**.
 
-Repository: https://github.com/Mikiyas-STP/Blogify :contentReference[oaicite:1]{index=1}
-
----
-
+## Repository
+https://github.com/Mikiyas-STP/Blogify
 ## 🚀 Live Demo
-
 🌐 https://blogifyfend.hosting.codeyourfuture.io/
 ---
 
